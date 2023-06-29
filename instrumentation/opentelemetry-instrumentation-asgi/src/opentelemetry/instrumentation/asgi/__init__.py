@@ -590,6 +590,8 @@ class OpenTelemetryMiddleware:
                 )
             if token:
                 context.detach(token)
+            if span.is_recording():
+                span.end()
 
     # pylint: enable=too-many-branches
 
