@@ -549,7 +549,7 @@ class OpenTelemetryMiddleware:
         if scope["type"] == "http":
             self.active_requests_counter.add(1, active_requests_count_attrs)
         try:
-            with trace.use_span(span, end_on_exit=True) as current_span:
+            with trace.use_span(span, end_on_exit=False) as current_span:
                 if current_span.is_recording():
                     for key, value in attributes.items():
                         current_span.set_attribute(key, value)
@@ -656,5 +656,8 @@ class OpenTelemetryMiddleware:
                     )
 
                 await send(message)
+            if message["type"] == "http.response.body":
+                if not message.get("more_body", False):
+                    server_span.end()
 
         return otel_send
